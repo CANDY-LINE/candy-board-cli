@@ -8,6 +8,7 @@ import struct
 import os
 import sys
 import pkg_resources
+import errno
 
 WARN = "\033[93m" # yellow
 NOTICE = "\033[94m" # green
@@ -51,7 +52,18 @@ def main(args):
         return 1
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.connect(SOCK_PATH)
+    try:
+        sock.connect(SOCK_PATH)
+    except socket.error, v:
+        errorcode = v[0]
+        if errorcode == errno.ECONNREFUSED:
+            err("[ERROR] CANDY Board Service isn't running")
+        elif errorcode == errno.EACCES:
+            err("[ERROR] Permission denied. 'sudo' is required")
+        else:
+            err("[ERROR] I/O error, errno=%s" % errno.errorcode[errorcode])
+        return errorcode
+
     code = 0
 
     if args.category in ("apn", "network", "sim", "modem", "service"):
