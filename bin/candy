@@ -17,7 +17,8 @@ END = "\033[0m"
 cli_version = pkg_resources.require("candy-board-cli")[0].version
 
 # candy apn ls ... list all apns
-# candy apn set <name> <user> <password> ... add a given apn
+# candy apn set <name> <user> <password> (<id>) ... add a given apn
+# candy apn del <id> ... delete a given apn
 # candy network show ... show phone network state and signal strength (RSSI in dBm)
 # candy sim show ... show SIM status and info (MSISDN, IMSI)
 # candy modem show ... show modem info (Model, Manufacturer, Revision, IMEI)
@@ -101,6 +102,9 @@ if __name__ == "__main__":
     parser_apn_set.add_argument ("-n", "--name", type = str, required = True, help = "APN")
     parser_apn_set.add_argument ("-u", "--user-id", type = str, required = True, help = "User ID")
     parser_apn_set.add_argument ("-p", "--password", type = str, required = True, help = "User Password")
+    parser_apn_set.add_argument ("-i", "--id", type = str, required = False, help = "APN ID (1 by default)")
+    parser_apn_del = apn_commands.add_parser ("del", help = "Delete an exsiting APN")
+    parser_apn_del.add_argument ("-i", "--id", type = str, required = False, help = "APN ID (1 by default)")
 
     parser_network = categories.add_parser("network", help = "Manage Phone Network")
     network_commands = parser_network.add_subparsers(title="Phone Network actions", dest="action")
