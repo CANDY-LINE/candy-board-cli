@@ -8,6 +8,7 @@ import struct
 import os
 import sys
 import pkg_resources
+import errno
 
 WARN = "\033[93m" # yellow
 NOTICE = "\033[94m" # green
@@ -17,7 +18,8 @@ END = "\033[0m"
 cli_version = pkg_resources.require("candy-board-cli")[0].version
 
 # candy apn ls ... list all apns
-# candy apn set <name> <user> <password> ... add a given apn
+# candy apn set <name> <user> <password> (<id>) ... add a given apn
+# candy apn del <id> ... delete a given apn
 # candy network show ... show phone network state and signal strength (RSSI in dBm)
 # candy sim show ... show SIM status and info (MSISDN, IMSI)
 # candy modem show ... show modem info (Model, Manufacturer, Revision, IMEI)
@@ -50,7 +52,18 @@ def main(args):
         return 1
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.connect(SOCK_PATH)
+    try:
+        sock.connect(SOCK_PATH)
+    except socket.error, v:
+        errorcode = v[0]
+        if errorcode == errno.ECONNREFUSED:
+            err("[ERROR] CANDY Board Service isn't running")
+        elif errorcode == errno.EACCES:
+            err("[ERROR] Permission denied. 'sudo' is required")
+        else:
+            err("[ERROR] I/O error, errno=%s" % errno.errorcode[errorcode])
+        return errorcode
+
     code = 0
 
     if args.category in ("apn", "network", "sim", "modem", "service"):
@@ -101,6 +114,9 @@ if __name__ == "__main__":
     parser_apn_set.add_argument ("-n", "--name", type = str, required = True, help = "APN")
     parser_apn_set.add_argument ("-u", "--user-id", type = str, required = True, help = "User ID")
     parser_apn_set.add_argument ("-p", "--password", type = str, required = True, help = "User Password")
+    parser_apn_set.add_argument ("-i", "--id", type = str, required = False, help = "APN ID (1 by default)")
+    parser_apn_del = apn_commands.add_parser ("del", help = "Delete an exsiting APN")
+    parser_apn_del.add_argument ("-i", "--id", type = str, required = False, help = "APN ID (1 by default)")
 
     parser_network = categories.add_parser("network", help = "Manage Phone Network")
     network_commands = parser_network.add_subparsers(title="Phone Network actions", dest="action")
@@ -113,6 +129,7 @@ if __name__ == "__main__":
     parser_modem = categories.add_parser("modem", help = "Manage LTE/3G module modem")
     modem_commands = parser_modem.add_subparsers(title="Modem actions", dest="action")
     parser_modem_show = modem_commands.add_parser ("show", help = "Show Module information")
+    parser_modem_reset = modem_commands.add_parser ("reset", help = "Reset modem")
 
     parser_service = categories.add_parser("service", help = "Manage CANDY Board Service")
     service_commands = parser_service.add_subparsers(title="CANDY Board Service actions", dest="action")

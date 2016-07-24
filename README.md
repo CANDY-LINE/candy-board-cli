@@ -17,19 +17,36 @@ $ pip install candy-board-cli
 $ pip candy-board-cli
 ```
 
-## Local Installation test
+## Development
+
+### Prerequisites
+
+ * [pandoc](http://pandoc.org)
+ * [pypandoc](https://pypi.python.org/pypi/pypandoc/1.2.0)
+
+On Mac OS:
+
+```
+$ brew install pandoc
+$ pip install pypandoc
+```
+
+### Local Installation test
 
 ```
 $ ./setup.py install --record files.txt
 ```
 
-## Local Uninstallation test
+### Local Uninstallation test
 
 ```
 $ cat files.txt | xargs rm -rf
 ```
 
 # Revision history
+
+ * 1.0.0
+    - Initial public release
 
  * 0.0.1
     - Initial beta release
