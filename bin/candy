@@ -129,6 +129,7 @@ if __name__ == "__main__":
     parser_modem = categories.add_parser("modem", help = "Manage LTE/3G module modem")
     modem_commands = parser_modem.add_subparsers(title="Modem actions", dest="action")
     parser_modem_show = modem_commands.add_parser ("show", help = "Show Module information")
+    parser_modem_reset = modem_commands.add_parser ("reset", help = "Reset modem")
 
     parser_service = categories.add_parser("service", help = "Manage CANDY Board Service")
     service_commands = parser_service.add_subparsers(title="CANDY Board Service actions", dest="action")
