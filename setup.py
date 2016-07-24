@@ -2,9 +2,10 @@
 
 import os
 import sys
+import pypandoc
 from setuptools import setup, find_packages
 
-version = "0.0.1"
+version = "1.0.0"
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -19,12 +20,12 @@ setup(
     url='http://github.com/CANDY-LINE/candy-board-cli',
     download_url='https://github.com/CANDY-LINE/candy-board-cli/tarball/{0}'.format(version),
     description='CANDY Board Service CLI',
-    long_description=open('README.md').read() + '\n\n' + open('LICENSE').read(),
+    long_description=pypandoc.convert('README.md', 'rst'),
     license='BSD3',
     scripts=['bin/candy'],
     classifiers=[
         'Programming Language :: Python',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Natural Language :: English',
         'Environment :: Console',
         'Intended Audience :: System Administrators',
