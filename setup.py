@@ -24,7 +24,7 @@ setup(
     scripts=['bin/candy'],
     classifiers=[
         'Programming Language :: Python',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Natural Language :: English',
         'Environment :: Console',
         'Intended Audience :: System Administrators',
