@@ -66,6 +66,11 @@ def main(args):
 
     code = 0
 
+    if args.category == "modem" and args.action == "reset":
+        if args.yes is not True:
+            warn("[WARN] Do NOT run this command unless you understand what you're doing")
+            return 1
+
     if args.category in ("apn", "network", "sim", "modem", "service"):
         try:
             # request
@@ -130,6 +135,7 @@ if __name__ == "__main__":
     modem_commands = parser_modem.add_subparsers(title="Modem actions", dest="action")
     parser_modem_show = modem_commands.add_parser ("show", help = "Show Module information")
     parser_modem_reset = modem_commands.add_parser ("reset", help = "Reset modem")
+    parser_modem_reset.add_argument ("-y", "--yes", action = "store_const", const = True, required = False, help = "Use this flag if you REALLY understand what the 'modem reset' command causes")
 
     parser_service = categories.add_parser("service", help = "Manage CANDY Board Service")
     service_commands = parser_service.add_subparsers(title="CANDY Board Service actions", dest="action")

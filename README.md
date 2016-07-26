@@ -45,8 +45,11 @@ $ cat files.txt | xargs rm -rf
 
 # Revision history
 
- * 1.0.0
+* 1.0.1
+    - Don't have users run modem reset command casually
+
+* 1.0.0
     - Initial public release
 
- * 0.0.1
+* 0.0.1
     - Initial beta release
