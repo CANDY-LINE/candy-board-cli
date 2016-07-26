@@ -5,7 +5,7 @@ import sys
 import pypandoc
 from setuptools import setup, find_packages
 
-version = "1.0.0"
+version = "1.0.1"
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
