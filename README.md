@@ -45,6 +45,9 @@ $ cat files.txt | xargs rm -rf
 
 # Revision history
 
+* 1.0.2
+    - Fix an issue where the code could exit after opening a socket which caused socket error on the socket server
+
 * 1.0.1
     - Don't have users run modem reset command casually
 

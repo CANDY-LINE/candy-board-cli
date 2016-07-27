@@ -51,6 +51,11 @@ def main(args):
         err("[ERROR] CANDY Board Service isn't running")
         return 1
 
+    if args.category == "modem" and args.action == "reset":
+        if args.yes is not True:
+            warn("[WARN] Abort! Do NOT run this command unless you understand what you're doing")
+            return 1
+
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     try:
         sock.connect(SOCK_PATH)
@@ -65,11 +70,6 @@ def main(args):
         return errorcode
 
     code = 0
-
-    if args.category == "modem" and args.action == "reset":
-        if args.yes is not True:
-            warn("[WARN] Do NOT run this command unless you understand what you're doing")
-            return 1
 
     if args.category in ("apn", "network", "sim", "modem", "service"):
         try:
