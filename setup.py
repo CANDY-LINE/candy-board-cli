@@ -2,8 +2,17 @@
 
 import os
 import sys
-import pypandoc
 from setuptools import setup, find_packages
+
+try:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst')
+except (IOError, ImportError):
+    try:
+        with open('README.md', 'r') as f:
+            long_description = f.read()
+    except IOError:  # For tox
+        long_description = ""
 
 version = "1.0.2"
 
@@ -18,23 +27,22 @@ setup(
     author='Daisuke Baba',
     author_email='baba.daisuke@gmail.com',
     url='http://github.com/CANDY-LINE/candy-board-cli',
-    download_url='https://github.com/CANDY-LINE/candy-board-cli/tarball/{0}'.format(version),
+    download_url='https://github.com/CANDY-LINE/candy-board-cli/tarball/{0}'
+        .format(version),
     description='CANDY Board Service CLI',
-    long_description=pypandoc.convert('README.md', 'rst'),
+    long_description=long_description,
     license='BSD3',
     scripts=['bin/candy'],
     classifiers=[
-        'Programming Language :: Python',
-        'Development Status :: 5 - Production/Stable',
-        'Natural Language :: English',
-        'Environment :: Console',
-        'Intended Audience :: System Administrators',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: POSIX :: Linux',
-        'Topic :: System :: Hardware',
-    ],
-    keywords=(
-        'CANDY EGG', 'CANDY LINE'
-    ),
+                    'Programming Language :: Python',
+                    'Development Status :: 5 - Production/Stable',
+                    'Natural Language :: English',
+                    'Environment :: Console',
+                    'Intended Audience :: System Administrators',
+                    'Intended Audience :: Developers',
+                    'License :: OSI Approved :: BSD License',
+                    'Operating System :: POSIX :: Linux',
+                    'Topic :: System :: Hardware',
+                ],
+    keywords=('CANDY EGG', 'CANDY LINE'),
 )
