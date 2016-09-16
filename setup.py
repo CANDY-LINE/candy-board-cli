@@ -14,7 +14,7 @@ except (IOError, ImportError):
     except IOError:  # For tox
         long_description = ""
 
-version = "1.0.2"
+version = "1.0.3"
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
