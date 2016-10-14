@@ -44,6 +44,9 @@ $ cat files.txt | xargs rm -rf
 ```
 
 # Revision history
+* 1.0.5
+    - Fix an issue where the shebang line in the published script pointed to a machine specific path (not to publish bdist_wheel)
+
 * 1.0.3
     - Make pypandoc dependency optional
 
