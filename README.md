@@ -1,7 +1,7 @@
 # CANDY Board service CLI
 
 [![GitHub release](https://img.shields.io/github/release/CANDY-LINE/candy-board-cli.svg)](https://github.com/CANDY-LINE/candy-board-cli/releases/latest)
-[![License BSD3](https://img.shields.io/github/license/CANDY-LINE/candy-board-cli.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![License ASL2.0](https://img.shields.io/github/license/CANDY-LINE/candy-board-cli.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A CLI tool to communicate with a CANDY Board service running on systemd
 
