@@ -10,9 +10,9 @@ import sys
 import pkg_resources
 import errno
 
-WARN = "\033[93m" # yellow
-NOTICE = "\033[94m" # green
-ERROR = "\033[91m" # red
+WARN = "\033[93m"    # yellow
+NOTICE = "\033[94m"  # green
+ERROR = "\033[91m"   # red
 END = "\033[0m"
 
 cli_version = pkg_resources.require("candy-board-cli")[0].version
@@ -20,7 +20,8 @@ cli_version = pkg_resources.require("candy-board-cli")[0].version
 # candy apn ls ... list all apns
 # candy apn set <name> <user> <password> (<id>) ... add a given apn
 # candy apn del <id> ... delete a given apn
-# candy network show ... show phone network state and signal strength (RSSI in dBm)
+# candy network show ... show phone network state and signal strength
+#                        (RSSI in dBm)
 # candy sim show ... show SIM status and info (MSISDN, IMSI)
 # candy modem show ... show modem info (Model, Manufacturer, Revision, IMEI)
 # candy service version ... return the board service software version
@@ -31,14 +32,18 @@ if "SOCK_PATH" in os.environ:
 else:
     SOCK_PATH = "/var/run/candy-board-service.sock"
 
+
 def err(msg):
     print(ERROR + msg + END)
+
 
 def warn(msg):
     print(WARN + msg + END)
 
+
 def notice(msg):
     print(NOTICE + msg + END)
+
 
 def main(args):
     if args.category == "version":
@@ -53,7 +58,8 @@ def main(args):
 
     if args.category == "modem" and args.action == "reset":
         if args.yes is not True:
-            warn("[WARN] Abort! Do NOT run this command unless you understand what you're doing")
+            warn("[WARN] Abort! Do NOT run this command "
+                 "unless you understand what you're doing")
             return 1
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -105,41 +111,64 @@ def main(args):
     else:
         raise ValueError("Unsupported category")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CANDY Board Service CLI")
     categories = parser.add_subparsers(title="categories", dest="category")
 
-    version_commands = categories.add_parser("version", help = "CLI Version")
+    version_commands = categories.add_parser("version", help="CLI Version")
 
-    parser_apn = categories.add_parser("apn", help = "Manipulate APN settings")
-    apn_commands = parser_apn.add_subparsers(title="APN actions", dest="action")
+    parser_apn = categories.add_parser("apn", help="Manipulate APN settings")
+    apn_commands = parser_apn.add_subparsers(
+        title="APN actions", dest="action")
 
-    parser_apn_ls = apn_commands.add_parser ("ls", help = "List all APNs")
-    parser_apn_set = apn_commands.add_parser ("set", help = "Set a new APN")
-    parser_apn_set.add_argument ("-n", "--name", type = str, required = True, help = "APN")
-    parser_apn_set.add_argument ("-u", "--user-id", type = str, required = True, help = "User ID")
-    parser_apn_set.add_argument ("-p", "--password", type = str, required = True, help = "User Password")
-    parser_apn_set.add_argument ("-i", "--id", type = str, required = False, help = "APN ID (1 by default)")
-    parser_apn_del = apn_commands.add_parser ("del", help = "Delete an exsiting APN")
-    parser_apn_del.add_argument ("-i", "--id", type = str, required = False, help = "APN ID (1 by default)")
+    parser_apn_ls = apn_commands.add_parser("ls", help="List all APNs")
+    parser_apn_set = apn_commands.add_parser("set", help="Set a new APN")
+    parser_apn_set.add_argument(
+        "-n", "--name", type=str, required=True, help="APN")
+    parser_apn_set.add_argument(
+        "-u", "--user-id", type=str, required=True, help="User ID")
+    parser_apn_set.add_argument(
+        "-p", "--password", type=str, required=True, help="User Password")
+    parser_apn_set.add_argument(
+        "-i", "--id", type=str, required=False, help="APN ID (1 by default)")
+    parser_apn_del = apn_commands.add_parser(
+        "del", help="Delete an exsiting APN")
+    parser_apn_del.add_argument(
+        "-i", "--id", type=str, required=False, help="APN ID (1 by default)")
 
-    parser_network = categories.add_parser("network", help = "Manage Phone Network")
-    network_commands = parser_network.add_subparsers(title="Phone Network actions", dest="action")
-    parser_network_show = network_commands.add_parser ("show", help = "Show Phone network state and Signal strength")
+    parser_network = categories.add_parser(
+        "network", help="Manage Phone Network")
+    network_commands = parser_network.add_subparsers(
+        title="Phone Network actions", dest="action")
+    parser_network_show = network_commands.add_parser(
+        "show", help="Show Phone network state and Signal strength")
 
-    parser_sim = categories.add_parser("sim", help = "Manage SIM")
-    sim_commands = parser_sim.add_subparsers(title="SIM actions", dest="action")
-    parser_sim_show = sim_commands.add_parser ("show", help = "Show SIM state and SIM information")
+    parser_sim = categories.add_parser("sim", help="Manage SIM")
+    sim_commands = parser_sim.add_subparsers(
+        title="SIM actions", dest="action")
+    parser_sim_show = sim_commands.add_parser(
+        "show", help="Show SIM state and SIM information")
 
-    parser_modem = categories.add_parser("modem", help = "Manage LTE/3G module modem")
-    modem_commands = parser_modem.add_subparsers(title="Modem actions", dest="action")
-    parser_modem_show = modem_commands.add_parser ("show", help = "Show Module information")
-    parser_modem_reset = modem_commands.add_parser ("reset", help = "Reset modem")
-    parser_modem_reset.add_argument ("-y", "--yes", action = "store_const", const = True, required = False, help = "Use this flag if you REALLY understand what the 'modem reset' command causes")
+    parser_modem = categories.add_parser(
+        "modem", help="Manage LTE/3G module modem")
+    modem_commands = parser_modem.add_subparsers(
+        title="Modem actions", dest="action")
+    parser_modem_show = modem_commands.add_parser(
+        "show", help="Show Module information")
+    parser_modem_reset = modem_commands.add_parser(
+        "reset", help="Reset modem")
+    parser_modem_reset.add_argument(
+        "-y", "--yes", action="store_const", const=True, required=False,
+        help="Use this flag if you REALLY understand what "
+        "the 'modem reset' command causes")
 
-    parser_service = categories.add_parser("service", help = "Manage CANDY Board Service")
-    service_commands = parser_service.add_subparsers(title="CANDY Board Service actions", dest="action")
-    parser_service_version = service_commands.add_parser ("version", help = "Show CANDY Board Service software version")
+    parser_service = categories.add_parser(
+        "service", help="Manage CANDY Board Service")
+    service_commands = parser_service.add_subparsers(
+        title="CANDY Board Service actions", dest="action")
+    parser_service_version = service_commands.add_parser(
+        "version", help="Show CANDY Board Service software version")
 
     args = parser.parse_args()
     sys.exit(main(args))
