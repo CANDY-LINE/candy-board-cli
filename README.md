@@ -43,7 +43,18 @@ $ ./setup.py install --record files.txt
 $ cat files.txt | xargs rm -rf
 ```
 
+### Create local package
+
+```
+$ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
+```
+
 # Revision history
+* 2.0.0
+    - Change license to Apache Software License 2.0
+    - Add a new option (`-o`) for providing network operator type when setting an APN
+    - Add a new option (`-o`) for passing optional arguments to `modem show` and `modem reset` commands
+
 * 1.0.5
     - Fix an issue where the shebang line in the published script pointed to a machine specific path (not to publish bdist_wheel)
 
