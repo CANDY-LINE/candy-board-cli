@@ -28,7 +28,7 @@ except (IOError, ImportError):
     except IOError:  # For tox
         long_description = ""
 
-version = "1.0.5"
+version = "2.0.0"
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -57,5 +57,5 @@ setup(
                     'Operating System :: POSIX :: Linux',
                     'Topic :: System :: Hardware',
                 ],
-    keywords=('CANDY EGG', 'CANDY LINE'),
+    keywords=('CANDY RED', 'CANDY EGG', 'CANDY LINE'),
 )
