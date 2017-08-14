@@ -145,6 +145,9 @@ if __name__ == "__main__":
     parser_apn_set.add_argument(
         "-p", "--password", type=str, required=True, help="User Password")
     parser_apn_set.add_argument(
+        "-o", "--operator", type=str, required=False,
+        help="Mobile Network Operator (docomo by default)")
+    parser_apn_set.add_argument(
         "-i", "--id", type=str, required=False, help="APN ID (1 by default)")
     parser_apn_del = apn_commands.add_parser(
         "del", help="Delete an exsiting APN")
@@ -157,6 +160,8 @@ if __name__ == "__main__":
         title="Phone Network actions", dest="action")
     parser_network_show = network_commands.add_parser(
         "show", help="Show Phone network state and Signal strength")
+    parser_network_show.add_argument(
+        "-o", "--opts", type=str, required=False, help="Show Options")
 
     parser_sim = categories.add_parser("sim", help="Manage SIM")
     sim_commands = parser_sim.add_subparsers(
@@ -176,6 +181,8 @@ if __name__ == "__main__":
         "-y", "--yes", action="store_const", const=True, required=False,
         help="Use this flag if you REALLY understand what "
         "the 'modem reset' command causes")
+    parser_modem_reset.add_argument(
+        "-o", "--opts", type=str, required=False, help="Reset Options")
 
     parser_service = categories.add_parser(
         "service", help="Manage CANDY Board Service")
