@@ -1,7 +1,7 @@
 # CANDY Board service CLI
 
 [![GitHub release](https://img.shields.io/github/release/CANDY-LINE/candy-board-cli.svg)](https://github.com/CANDY-LINE/candy-board-cli/releases/latest)
-[![License BSD3](https://img.shields.io/github/license/CANDY-LINE/candy-board-cli.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![License ASL2.0](https://img.shields.io/github/license/CANDY-LINE/candy-board-cli.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A CLI tool to communicate with a CANDY Board service running on systemd
 
@@ -43,7 +43,18 @@ $ ./setup.py install --record files.txt
 $ cat files.txt | xargs rm -rf
 ```
 
+### Create local package
+
+```
+$ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
+```
+
 # Revision history
+* 2.0.0
+    - Change license to Apache Software License 2.0
+    - Add a new option (`-o`) for providing network operator type when setting an APN
+    - Add a new option (`-o`) for passing optional arguments to `modem show` and `modem reset` commands
+
 * 1.0.5
     - Fix an issue where the shebang line in the published script pointed to a machine specific path (not to publish bdist_wheel)
 

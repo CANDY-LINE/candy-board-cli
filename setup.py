@@ -1,5 +1,19 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2017 CANDY LINE INC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import sys
 from setuptools import setup, find_packages
@@ -14,7 +28,7 @@ except (IOError, ImportError):
     except IOError:  # For tox
         long_description = ""
 
-version = "1.0.5"
+version = "2.0.0"
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -30,7 +44,7 @@ setup(
         .format(version),
     description='CANDY Board Service CLI',
     long_description=long_description,
-    license='BSD3',
+    license='ASL 2.0',
     scripts=['bin/candy'],
     classifiers=[
                     'Programming Language :: Python',
@@ -39,9 +53,9 @@ setup(
                     'Environment :: Console',
                     'Intended Audience :: System Administrators',
                     'Intended Audience :: Developers',
-                    'License :: OSI Approved :: BSD License',
+                    'License :: OSI Approved :: Apache Software License',
                     'Operating System :: POSIX :: Linux',
                     'Topic :: System :: Hardware',
                 ],
-    keywords=('CANDY EGG', 'CANDY LINE'),
+    keywords=('CANDY RED', 'CANDY EGG', 'CANDY LINE'),
 )
