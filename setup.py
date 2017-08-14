@@ -31,7 +31,9 @@ except (IOError, ImportError):
 version = "2.0.0"
 
 if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
+    os.system('rm -fr dist/*')
+    os.system('python setup.py sdist')
+    os.system('twine upload dist/*')
     sys.exit()
 
 setup(
