@@ -148,6 +148,8 @@ if __name__ == "__main__":
         "-o", "--operator", type=str, required=False,
         help="Mobile Network Operator (docomo by default)")
     parser_apn_set.add_argument(
+        "-t", "--type", type=str, required=False, help="PDN/PDP Type")
+    parser_apn_set.add_argument(
         "-i", "--id", type=str, required=False, help="APN ID (1 by default)")
     parser_apn_del = apn_commands.add_parser(
         "del", help="Delete an exsiting APN")
@@ -162,6 +164,16 @@ if __name__ == "__main__":
         "show", help="Show Phone network state and Signal strength")
     parser_network_show.add_argument(
         "-o", "--opts", type=str, required=False, help="Show Options")
+    parser_network_deregister = network_commands.add_parser(
+        "deregister", help="Deregister from the current network")
+    parser_network_register = network_commands.add_parser(
+        "register", help="Register to the given operator network")
+    parser_network_register.add_argument(
+        "-p", "--operator", type=str, required=False,
+        help="5-digit Network Operator MCC/MNC")
+    parser_network_register.add_argument(
+        "-a", "--auto", required=False, action='store_true',
+        help="Select an operator automatically")
 
     parser_sim = categories.add_parser("sim", help="Manage SIM")
     sim_commands = parser_sim.add_subparsers(
