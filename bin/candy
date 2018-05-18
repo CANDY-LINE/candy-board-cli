@@ -201,7 +201,12 @@ def main(args):
                 err("[ERROR] I/O error, errno=%s" % errno.errorcode[errorcode])
             return errorcode
         return perform_remote_cmd(sock, args)
-    elif args.category in ("connection", "service"):
+    elif args.category in ("connection"):
+        if not os.path.exists(SOCK_PATH):
+            err("[ERROR] CANDY Board Service isn't running")
+            return 1
+        return perform_local_cmd(args)
+    elif args.category in ("service"):
         return perform_local_cmd(args)
     else:
         raise ValueError("Unsupported category")
