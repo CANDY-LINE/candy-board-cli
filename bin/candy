@@ -23,6 +23,8 @@ import os
 import sys
 import pkg_resources
 import errno
+import subprocess
+import traceback
 
 WARN = "\033[93m"    # yellow
 NOTICE = "\033[94m"  # green
@@ -30,6 +32,7 @@ ERROR = "\033[91m"   # red
 END = "\033[0m"
 
 cli_version = pkg_resources.require("candy-board-cli")[0].version
+this_module = sys.modules[__name__]
 
 # candy apn ls ... list all apns
 # candy apn set <name> <user> <password> (<id>) ... add a given apn
@@ -39,7 +42,19 @@ cli_version = pkg_resources.require("candy-board-cli")[0].version
 # candy sim show ... show SIM status and info (MSISDN, IMSI)
 # candy modem show ... show modem info (Model, Manufacturer, Revision, IMEI)
 # candy service version ... return the board service software version
+# candy service status ... same as systemctl status candy-pi-lite
+# candy service start ... same as systemctl start candy-pi-lite
+# candy service restart ... same as systemctl restart candy-pi-lite
+# candy service stop ... same as systemctl stop candy-pi-lite
+# candy service enable ... same as systemctl enable candy-pi-lite
+# candy service disable ... same as systemctl disable candy-pi-lite
+# candy connection suspend ... suspend the currently established connection
+# candy connection resume ... resume the suspended connection
+# candy connection status ... show the connection status
 # candy version ... return this CLI version
+
+PRODUCT_DIR_NAME = "candy-pi-lite"
+PRODUCT_HOME = "/opt/candy-line/%s" % PRODUCT_DIR_NAME
 
 if "SOCK_PATH" in os.environ:
     SOCK_PATH = os.environ["SOCK_PATH"]
@@ -59,16 +74,108 @@ def notice(msg):
     print(NOTICE + msg + END)
 
 
+def perform_remote_cmd(sock, args):
+    """
+    Perform the remote service command.
+    The given sock is always closed after finishing the operation.
+    """
+    code = 0
+    try:
+        # request
+        packer = struct.Struct("I")
+        cmd_json = json.dumps(vars(args))
+        size = len(cmd_json)
+        packed_header = packer.pack(size)
+        sock.sendall(packed_header)
+        packer = struct.Struct("%is" % size)
+        packed_json = packer.pack(cmd_json)
+        sock.sendall(packed_json)
+
+        # response
+        packer = struct.Struct("I")
+        packed_result = sock.recv(packer.size)
+        result = packer.unpack(packed_result)
+
+        # result
+        if result != 0:
+            packer = struct.Struct("%is" % result)
+            packed_message = sock.recv(packer.size)
+            message_json = packer.unpack(packed_message)
+            message = json.loads(message_json[0])
+            if message["status"] != "OK":
+                code = 2
+            if message["result"]:
+                print(json.dumps(message["result"], indent=2))
+
+    finally:
+        sock.close()
+        return code
+
+
+def perform_local_cmd(args):
+    """
+    Perform the given command on this process.
+    This method can perform the remote command as well if necessary.
+    The given sock is always closed after finishing the operation
+    """
+    cmd = vars(args)
+    try:
+        m = getattr(this_module,
+                    "%s_%s" % (cmd['category'], cmd['action']))
+        return m(cmd)
+    except AttributeError:
+        return err("Unknown Command")
+    except KeyError:
+        return err("Invalid Args")
+    except OSError:
+        return err("I/O Error")
+    except Exception:
+        return err("Unexpected error: %s" %
+                   (''.join(traceback
+                    .format_exception(*sys.exc_info())[-2:])
+                    .strip().replace('\n', ': '))
+                   )
+
+
+def perform_service_cmd(cmd, success_msg=''):
+    child = subprocess.Popen("systemctl %s candy-pi-lite" % cmd,
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE
+                             )
+    stdout, stderr = child.communicate()
+    if child.returncode == 0 or (child.returncode == 3 and cmd == 'status'):
+        return notice(success_msg or stdout or stderr)
+    else:
+        return err("'systemctl %s candy-pi-lite' failed, %s, %s" %
+                   (cmd, stdout, stderr))
+
+
+def perform_connection_cmd(cmd, success_msg=''):
+    child = subprocess.Popen("%s/connection_%s.sh" %
+                             (PRODUCT_HOME, cmd),
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE
+                             )
+    stdout, stderr = child.communicate()
+    if child.returncode < 5:
+        return notice(success_msg or stdout or stderr)
+    else:
+        return err("'connection_%s.sh' failed, %s, %s" %
+                   (cmd, stdout, stderr))
+
+
 def main(args):
+    if not os.path.exists(PRODUCT_HOME):
+        err("[NOTICE] CANDY Board Service is missing")
+        return 1
+
     if args.category == "version":
         print("CANDY Board Service CLI version: %s" % cli_version)
         if not os.path.exists(SOCK_PATH):
             notice("[NOTICE] CANDY Board Service isn't running")
         return 0
-
-    if not os.path.exists(SOCK_PATH):
-        err("[ERROR] CANDY Board Service isn't running")
-        return 1
 
     if args.category == "modem" and args.action == "reset":
         if args.yes is not True:
@@ -76,54 +183,64 @@ def main(args):
                  "unless you understand what you're doing")
             return 1
 
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    try:
-        sock.connect(SOCK_PATH)
-    except socket.error, v:
-        errorcode = v[0]
-        if errorcode == errno.ECONNREFUSED:
+    if args.category in ("apn", "network", "sim", "modem") or \
+       args.category == "service" and args.action == "version":
+        if not os.path.exists(SOCK_PATH):
             err("[ERROR] CANDY Board Service isn't running")
-        elif errorcode == errno.EACCES:
-            err("[ERROR] Permission denied. 'sudo' is required")
-        else:
-            err("[ERROR] I/O error, errno=%s" % errno.errorcode[errorcode])
-        return errorcode
-
-    code = 0
-
-    if args.category in ("apn", "network", "sim", "modem", "service"):
+            return 1
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
-            # request
-            packer = struct.Struct("I")
-            cmd_json = json.dumps(vars(args))
-            size = len(cmd_json)
-            packed_header = packer.pack(size)
-            sock.sendall(packed_header)
-            packer = struct.Struct("%is" % size)
-            packed_json = packer.pack(cmd_json)
-            sock.sendall(packed_json)
-
-            # response
-            packer = struct.Struct("I")
-            packed_result = sock.recv(packer.size)
-            result = packer.unpack(packed_result)
-
-            # result
-            if result != 0:
-                packer = struct.Struct("%is" % result)
-                packed_message = sock.recv(packer.size)
-                message_json = packer.unpack(packed_message)
-                message = json.loads(message_json[0])
-                if message["status"] != "OK":
-                    code = 2
-                if message["result"]:
-                    print(json.dumps(message["result"], indent=2))
-
-        finally:
-            sock.close()
-            return code
+            sock.connect(SOCK_PATH)
+        except socket.error, v:
+            errorcode = v[0]
+            if errorcode == errno.ECONNREFUSED:
+                err("[ERROR] CANDY Board Service isn't running")
+            elif errorcode == errno.EACCES:
+                err("[ERROR] Permission denied. 'sudo' is required")
+            else:
+                err("[ERROR] I/O error, errno=%s" % errno.errorcode[errorcode])
+            return errorcode
+        return perform_remote_cmd(sock, args)
+    elif args.category in ("connection", "service"):
+        return perform_local_cmd(args)
     else:
         raise ValueError("Unsupported category")
+
+
+def service_start(cmd):
+    return perform_service_cmd("start", "Service Started")
+
+
+def service_restart(cmd):
+    return perform_service_cmd("restart", "Service Restarted")
+
+
+def service_stop(cmd):
+    return perform_service_cmd("stop", "Service Stopped")
+
+
+def service_enable(cmd):
+    return perform_service_cmd("enable")
+
+
+def service_disable(cmd):
+    return perform_service_cmd("disable")
+
+
+def service_status(cmd):
+    return perform_service_cmd("status")
+
+
+def connection_status(cmd):
+    return perform_connection_cmd("status")
+
+
+def connection_suspend(cmd):
+    return perform_connection_cmd("suspend", "Connection Suspended")
+
+
+def connection_resume(cmd):
+    return perform_connection_cmd("resume", "Connection Resumed")
 
 
 if __name__ == "__main__":
@@ -202,6 +319,29 @@ if __name__ == "__main__":
         title="CANDY Board Service actions", dest="action")
     parser_service_version = service_commands.add_parser(
         "version", help="Show CANDY Board Service software version")
+    parser_service_start = service_commands.add_parser(
+        "start", help="Start CANDY Board Service")
+    parser_service_restart = service_commands.add_parser(
+        "restart", help="Restart CANDY Board Service")
+    parser_service_stop = service_commands.add_parser(
+        "stop", help="Stop CANDY Board Service")
+    parser_service_enable = service_commands.add_parser(
+        "enable", help="Enable CANDY Board Service")
+    parser_service_disable = service_commands.add_parser(
+        "disable", help="Disable CANDY Board Service")
+    parser_service_status = service_commands.add_parser(
+        "status", help="Show CANDY Board Service Status")
+
+    parser_connection = categories.add_parser(
+        "connection", help="Manage ppp connection")
+    connection_commands = parser_connection.add_subparsers(
+        title="ppp connection actions", dest="action")
+    parser_connection_status = connection_commands.add_parser(
+        "status", help="Show the ppp connection status")
+    parser_connection_suspend = connection_commands.add_parser(
+        "suspend", help="Suspend the ppp connection")
+    parser_connection_resume = connection_commands.add_parser(
+        "resume", help="Resume the suspended ppp connection")
 
     args = parser.parse_args()
     sys.exit(main(args))
