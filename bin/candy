@@ -348,5 +348,29 @@ if __name__ == "__main__":
     parser_connection_resume = connection_commands.add_parser(
         "resume", help="Resume the suspended ppp connection")
 
+    parser_gnss = categories.add_parser(
+        "gnss", help="Manage GNSS module (Use GPS)")
+    gnss_commands = parser_gnss.add_subparsers(
+        title="GNSS module actions", dest="action")
+    parser_gnss_start = gnss_commands.add_parser(
+        "start", help="Start GNSS positioning. "
+        "NMEA sentences are emitted from the dedicated NMEA port(USB only).")
+    parser_gnss_start.add_argument(
+        "-g", "--gps-nmea", type=str, required=False,
+        help="GPS NMEA sentence type. GGA, RMC, GSV, GSA or VTG")
+    parser_gnss_start.add_argument(
+        "-f", "--force", const=True, required=False,
+        help="Suspend the connection if already established "
+        "while starting the GNSS positioning")
+    parser_gnss_stop = gnss_commands.add_parser(
+        "stop", help="Stop GNSS positioning")
+    parser_gnss_locate = gnss_commands.add_parser(
+        "locate", help="Locate the current position")
+    parser_gnss_locate.add_argument(
+        "-f", "--format", type=int, required=False,
+        help="Display Format. 0: ddmm.mmmm N/S,dddmm.mmmm E/W, "
+        "1:ddmm.mmmmmm N/S,dddmm.mmmmmm E/W, "
+        "2: (-)dd.ddddd,(-)ddd.ddddd")
+
     args = parser.parse_args()
     sys.exit(main(args))
