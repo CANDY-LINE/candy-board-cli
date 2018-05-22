@@ -40,7 +40,7 @@ $ ./setup.py install --record files.txt
 ### Local Uninstallation test
 
 ```
-$ cat files.txt | xargs rm -rf
+$ cat files.txt | xargs rm -f
 ```
 
 ### Create local package
