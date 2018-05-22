@@ -123,6 +123,8 @@ def perform_local_cmd(args):
         m = getattr(this_module,
                     "%s_%s" % (cmd['category'], cmd['action']))
         return m(cmd)
+    except socket.error, v:
+        raise v
     except AttributeError:
         return err("Unknown Command")
     except KeyError:
@@ -151,8 +153,8 @@ def perform_service_cmd(cmd, success_msg=''):
                    (cmd, stdout, stderr))
 
 
-def perform_connection_cmd(cmd, success_msg=''):
-    child = subprocess.Popen("%s/connection_%s.sh" %
+def perform_connection_cmd(cmd, success_msg='', suppress=False):
+    child = subprocess.Popen("%s/connection_%s.sh -q" %
                              (PRODUCT_HOME, cmd),
                              shell=True,
                              stdout=subprocess.PIPE,
@@ -160,10 +162,13 @@ def perform_connection_cmd(cmd, success_msg=''):
                              )
     stdout, stderr = child.communicate()
     if child.returncode < 5:
-        return notice(success_msg or stdout or stderr)
+        if not suppress:
+            notice(success_msg or stdout or stderr)
+        return child.returncode
     else:
-        return err("'connection_%s.sh' failed, %s, %s" %
-                   (cmd, stdout, stderr))
+        err("'connection_%s.sh' failed, %s, %s" %
+            (cmd, stdout, stderr))
+        return None
 
 
 def main(args):
@@ -237,15 +242,20 @@ def service_status(cmd):
 
 
 def connection_status(cmd):
-    return perform_connection_cmd("status")
+    code = perform_connection_cmd("status", None)
+    if code == 0:
+        notice("ONLINE")
+    elif code == 1:
+        notice("OFFLINE")
 
 
-def connection_suspend(cmd):
-    return perform_connection_cmd("suspend", "Connection Suspended")
+def connection_suspend(cmd, suppress=False):
+    return perform_connection_cmd("suspend", "Connection Suspended", suppress)
 
 
-def connection_resume(cmd):
-    return perform_connection_cmd("resume", "Connection Resumed")
+def connection_resume(cmd, suppress=False):
+    return perform_connection_cmd("resume", "Connection Resumed", suppress)
+
 
 
 if __name__ == "__main__":
