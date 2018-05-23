@@ -260,7 +260,7 @@ def service_status(cmd):
 
 
 def connection_status(cmd):
-    code = perform_connection_cmd("status", None)
+    code = perform_connection_cmd("status", None, True)
     if code == 0:
         notice("ONLINE")
     elif code == 1:
