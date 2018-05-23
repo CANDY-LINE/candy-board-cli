@@ -50,6 +50,10 @@ $ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
 # Revision history
+* 3.0.0
+    - Add new categories, `connection` and `gnss`
+    - Add new actions in `service` category
+
 * 2.0.0
     - Change license to Apache Software License 2.0
     - Add a new option (`-o`) for providing network operator type when setting an APN
