@@ -248,11 +248,11 @@ def service_stop(cmd):
 
 
 def service_enable(cmd):
-    return perform_service_cmd("enable")
+    return perform_service_cmd("enable", "Service Enabled")
 
 
 def service_disable(cmd):
-    return perform_service_cmd("disable")
+    return perform_service_cmd("disable", "Service Disabled")
 
 
 def service_status(cmd):
