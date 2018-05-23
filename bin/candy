@@ -438,15 +438,6 @@ if __name__ == "__main__":
         "-r", "--resume", action="store_const", const=True, required=False,
         help="Resume the suspended UART connection "
         "after performing the GNSS command (UART only)")
-    parser_gnss_start.add_argument(
-        "-u", "--run-on-startup", action="store_const", const=True,
-        required=False,
-        help="Run the GNSS session on startup (saved to the module)")
-    parser_gnss_start.add_argument(
-        "-d", "--disable-run-on-startup", action="store_const", const=True,
-        required=False,
-        help="Disable the GNSS session running on startup "
-        "(saved to the module, default)")
     parser_gnss_stop = gnss_commands.add_parser(
         "stop", help="Stop GNSS positioning")
     parser_gnss_stop.add_argument(
