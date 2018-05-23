@@ -282,7 +282,7 @@ def connection_resume(cmd, suppress=False):
 
 
 def usb_connected():
-    return len(glob.glob("/dev/QWS\.[A-Z0-9]*\.AT")) > 0
+    return len(glob.glob("/dev/QWS.[A-Z0-9]*.AT")) > 0
 
 
 def gnss_common(cmd):
