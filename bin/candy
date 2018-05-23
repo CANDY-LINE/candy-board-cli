@@ -272,7 +272,13 @@ def connection_suspend(cmd, suppress=False):
 
 
 def connection_resume(cmd, suppress=False):
-    return perform_connection_cmd("resume", "Connection Resumed", suppress)
+    code = perform_connection_cmd("resume", None, True)
+    if not suppress:
+        if code == 1:
+            err("Timeout")
+        else:
+            notice("Connection Resumed")
+    return code
 
 
 def usb_connected():
