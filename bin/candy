@@ -25,6 +25,8 @@ import pkg_resources
 import errno
 import subprocess
 import traceback
+import glob
+import time
 
 WARN = "\033[93m"    # yellow
 NOTICE = "\033[94m"  # green
@@ -74,16 +76,23 @@ def notice(msg):
     print(NOTICE + msg + END)
 
 
-def perform_remote_cmd(sock, args):
+def perform_remote_cmd(args, sock=None):
     """
     Perform the remote service command.
     The given sock is always closed after finishing the operation.
     """
     code = 0
+
     try:
+        if sock is None:
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sock.connect(SOCK_PATH)
         # request
         packer = struct.Struct("I")
-        cmd_json = json.dumps(vars(args))
+        if isinstance(args, dict):
+            cmd_json = json.dumps(args)
+        else:
+            cmd_json = json.dumps(vars(args))
         size = len(cmd_json)
         packed_header = packer.pack(size)
         sock.sendall(packed_header)
@@ -105,7 +114,13 @@ def perform_remote_cmd(sock, args):
             if message["status"] != "OK":
                 code = 2
             if message["result"]:
-                print(json.dumps(message["result"], indent=2))
+                msg = message["result"]
+                if not isinstance(msg, basestring):
+                    msg = json.dumps(msg, indent=2)
+                if code == 0:
+                    notice(msg)
+                else:
+                    err(msg)
 
     finally:
         sock.close()
@@ -188,14 +203,18 @@ def main(args):
                  "unless you understand what you're doing")
             return 1
 
-    if args.category in ("apn", "network", "sim", "modem") or \
+    if args.category in ("apn", "network", "sim", "modem", "gnss") or \
        args.category == "service" and args.action == "version":
         if not os.path.exists(SOCK_PATH):
             err("[ERROR] CANDY Board Service isn't running")
             return 1
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
-            sock.connect(SOCK_PATH)
+            if args.category == "gnss":
+                return perform_local_cmd(args)
+            else:
+                sock.connect(SOCK_PATH)
+                return perform_remote_cmd(args, sock)
         except socket.error, v:
             errorcode = v[0]
             if errorcode == errno.ECONNREFUSED:
@@ -205,7 +224,6 @@ def main(args):
             else:
                 err("[ERROR] I/O error, errno=%s" % errno.errorcode[errorcode])
             return errorcode
-        return perform_remote_cmd(sock, args)
     elif args.category in ("connection"):
         if not os.path.exists(SOCK_PATH):
             err("[ERROR] CANDY Board Service isn't running")
@@ -256,6 +274,47 @@ def connection_suspend(cmd, suppress=False):
 def connection_resume(cmd, suppress=False):
     return perform_connection_cmd("resume", "Connection Resumed", suppress)
 
+
+def usb_connected():
+    return len(glob.glob("/dev/QWS\.[A-Z0-9]*\.AT")) > 0
+
+
+def gnss_common(cmd):
+    code = 0
+    if usb_connected():
+        return perform_remote_cmd(cmd)
+    elif cmd['suspend']:
+        code = connection_suspend(cmd, True)
+        if code is None:
+            return 1
+        elif code == 0:
+            time.sleep(1.5)
+        code = perform_remote_cmd(cmd)
+    else:
+        code = perform_remote_cmd(cmd)
+    if cmd['resume']:
+        connection_resume(cmd, True)
+    return code
+
+
+def gnss_start(cmd):
+    code = gnss_common(cmd)
+    if code == 0:
+        notice('OK')
+
+
+def gnss_stop(cmd):
+    code = gnss_common(cmd)
+    if code == 0:
+        notice('OK')
+
+
+def gnss_status(cmd):
+    return gnss_common(cmd)
+
+
+def gnss_locate(cmd):
+    return gnss_common(cmd)
 
 
 if __name__ == "__main__":
@@ -366,21 +425,57 @@ if __name__ == "__main__":
         "start", help="Start GNSS positioning. "
         "NMEA sentences are emitted from the dedicated NMEA port(USB only).")
     parser_gnss_start.add_argument(
-        "-g", "--gps-nmea", type=str, required=False,
-        help="GPS NMEA sentence type. GGA, RMC, GSV, GSA or VTG")
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to performing the GNSS command (UART only)")
     parser_gnss_start.add_argument(
-        "-f", "--force", const=True, required=False,
-        help="Suspend the connection if already established "
-        "while starting the GNSS positioning")
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after performing the GNSS command (UART only)")
+    parser_gnss_start.add_argument(
+        "-u", "--run-on-startup", action="store_const", const=True,
+        required=False,
+        help="Run the GNSS session on startup (saved to the module)")
+    parser_gnss_start.add_argument(
+        "-d", "--disable-run-on-startup", action="store_const", const=True,
+        required=False,
+        help="Disable the GNSS session running on startup "
+        "(saved to the module, default)")
     parser_gnss_stop = gnss_commands.add_parser(
         "stop", help="Stop GNSS positioning")
+    parser_gnss_stop.add_argument(
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to performing the GNSS command (UART only)")
+    parser_gnss_stop.add_argument(
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after performing the GNSS command (UART only)")
+    parser_gnss_status = gnss_commands.add_parser(
+        "status", help="Show GNSS positioning function status")
+    parser_gnss_status.add_argument(
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to performing the GNSS command (UART only)")
+    parser_gnss_status.add_argument(
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after performing the GNSS command (UART only)")
     parser_gnss_locate = gnss_commands.add_parser(
         "locate", help="Locate the current position")
     parser_gnss_locate.add_argument(
-        "-f", "--format", type=int, required=False,
+        "-t", "--format", type=int, required=False,
         help="Display Format. 0: ddmm.mmmm N/S,dddmm.mmmm E/W, "
         "1:ddmm.mmmmmm N/S,dddmm.mmmmmm E/W, "
         "2: (-)dd.ddddd,(-)ddd.ddddd")
+    parser_gnss_locate.add_argument(
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to performing the GNSS command (UART only)")
+    parser_gnss_locate.add_argument(
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after performing the GNSS command (UART only)")
 
     args = parser.parse_args()
     sys.exit(main(args))
