@@ -181,7 +181,7 @@ def perform_connection_cmd(cmd, success_msg='', suppress=False):
             notice(success_msg or stdout or stderr)
         return child.returncode
     else:
-        err("'connection_%s.sh' failed, %s, %s" %
+        err("'connection_%s.sh' failed (stdout:[%s], stderr:[%s])" %
             (cmd, stdout, stderr))
         return None
 
