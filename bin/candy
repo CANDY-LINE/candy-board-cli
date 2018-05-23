@@ -473,7 +473,7 @@ if __name__ == "__main__":
         "-t", "--format", type=int, required=False,
         help="Display Format. 0: ddmm.mmmm N/S,dddmm.mmmm E/W, "
         "1:ddmm.mmmmmm N/S,dddmm.mmmmmm E/W, "
-        "2: (-)dd.ddddd,(-)ddd.ddddd")
+        "2: (-)dd.ddddd,(-)ddd.ddddd (default)")
     parser_gnss_locate.add_argument(
         "-s", "--suspend", action="store_const", const=True, required=False,
         help="Suspend the UART connection if already established "
