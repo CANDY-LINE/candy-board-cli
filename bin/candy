@@ -27,6 +27,7 @@ import subprocess
 import traceback
 import glob
 import time
+import re
 
 WARN = "\033[93m"    # yellow
 NOTICE = "\033[94m"  # green
@@ -53,10 +54,15 @@ this_module = sys.modules[__name__]
 # candy connection suspend ... suspend the currently established connection
 # candy connection resume ... resume the suspended connection
 # candy connection status ... show the connection status
+# candy gnss start ... start the GNSS session
+# candy gnss stop ... stop the GNSS session
+# candy gnss status ... show the GNSS session status
+# candy gnss locate ... locate the position
 # candy version ... return this CLI version
 
 PRODUCT_DIR_NAME = "candy-pi-lite"
 PRODUCT_HOME = "/opt/candy-line/%s" % PRODUCT_DIR_NAME
+MODEM_SERIAL_PORT_FILE = os.path.join(PRODUCT_HOME, '__modem_serial_port')
 
 if "SOCK_PATH" in os.environ:
     SOCK_PATH = os.environ["SOCK_PATH"]
@@ -282,7 +288,11 @@ def connection_resume(cmd, suppress=False):
 
 
 def usb_connected():
-    return len(glob.glob("/dev/QWS.[A-Z0-9]*.AT")) > 0
+    try:
+        with open(MODEM_SERIAL_PORT_FILE, 'r') as f:
+            return re.match("/dev/QWS\.[A-Z0-9]*\.MODEM", f.read().strip())
+    except IOError:
+        return False
 
 
 def gnss_common(cmd):
