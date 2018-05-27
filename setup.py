@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2017 CANDY LINE INC.
+# Copyright (c) 2018 CANDY LINE INC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ except (IOError, ImportError):
     except IOError:  # For tox
         long_description = ""
 
-version = "2.0.0"
+version = "3.0.0"
 
 if sys.argv[-1] == 'publish':
     os.system('rm -fr dist/*')
@@ -59,5 +59,11 @@ setup(
                     'Operating System :: POSIX :: Linux',
                     'Topic :: System :: Hardware',
                 ],
-    keywords=('CANDY RED', 'CANDY EGG', 'CANDY LINE'),
+    keywords=(
+        'CANDY RED',
+        'CANDY EGG',
+        'CANDY LINE',
+        'CANDY Pi Lite',
+        'CANDY Pi Lite+'
+        ),
 )
