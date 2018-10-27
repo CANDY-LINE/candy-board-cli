@@ -151,7 +151,11 @@ def perform_local_cmd(args):
     except KeyError:
         return err("Invalid Args")
     except OSError:
-        return err("I/O Error")
+        return err("I/O Error: %s" %
+                   (''.join(traceback
+                    .format_exception(*sys.exc_info())[-2:])
+                    .strip().replace('\n', ': '))
+                   )
     except Exception:
         return err("Unexpected error: %s" %
                    (''.join(traceback
