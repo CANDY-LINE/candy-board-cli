@@ -295,7 +295,7 @@ def usb_connected():
         return False
 
 
-def gnss_common(cmd):
+def cmd_common(cmd):
     code = 0
     if usb_connected():
         return perform_remote_cmd(cmd)
@@ -314,23 +314,23 @@ def gnss_common(cmd):
 
 
 def gnss_start(cmd):
-    code = gnss_common(cmd)
+    code = cmd_common(cmd)
     if code == 0:
         notice('OK')
 
 
 def gnss_stop(cmd):
-    code = gnss_common(cmd)
+    code = cmd_common(cmd)
     if code == 0:
         notice('OK')
 
 
 def gnss_status(cmd):
-    return gnss_common(cmd)
+    return cmd_common(cmd)
 
 
 def gnss_locate(cmd):
-    return gnss_common(cmd)
+    return cmd_common(cmd)
 
 
 if __name__ == "__main__":
