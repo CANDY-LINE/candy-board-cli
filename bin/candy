@@ -290,7 +290,7 @@ def connection_resume(cmd, suppress=False):
 def usb_connected():
     try:
         with open(MODEM_SERIAL_PORT_FILE, 'r') as f:
-            return re.match("/dev/QWS\.[A-Z0-9]*\.MODEM", f.read().strip())
+            return re.match("/dev/QWS\\.[A-Z0-9]*\\.MODEM", f.read().strip())
     except IOError:
         return False
 
