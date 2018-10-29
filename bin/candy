@@ -147,11 +147,15 @@ def perform_local_cmd(args):
     except socket.error, v:
         raise v
     except AttributeError:
-        return err("Unknown Command")
+        return cmd_common(cmd)
     except KeyError:
         return err("Invalid Args")
     except OSError:
-        return err("I/O Error")
+        return err("I/O Error: %s" %
+                   (''.join(traceback
+                    .format_exception(*sys.exc_info())[-2:])
+                    .strip().replace('\n', ': '))
+                   )
     except Exception:
         return err("Unexpected error: %s" %
                    (''.join(traceback
@@ -214,13 +218,8 @@ def main(args):
         if not os.path.exists(SOCK_PATH):
             err("[ERROR] CANDY Board Service isn't running")
             return 1
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
-            if args.category == "gnss":
-                return perform_local_cmd(args)
-            else:
-                sock.connect(SOCK_PATH)
-                return perform_remote_cmd(args, sock)
+            return perform_local_cmd(args)
         except socket.error, v:
             errorcode = v[0]
             if errorcode == errno.ECONNREFUSED:
@@ -290,12 +289,12 @@ def connection_resume(cmd, suppress=False):
 def usb_connected():
     try:
         with open(MODEM_SERIAL_PORT_FILE, 'r') as f:
-            return re.match("/dev/QWS\.[A-Z0-9]*\.MODEM", f.read().strip())
+            return re.match("/dev/QWS\\.[A-Z0-9]*\\.MODEM", f.read().strip())
     except IOError:
         return False
 
 
-def gnss_common(cmd):
+def cmd_common(cmd):
     code = 0
     if usb_connected():
         return perform_remote_cmd(cmd)
@@ -314,23 +313,15 @@ def gnss_common(cmd):
 
 
 def gnss_start(cmd):
-    code = gnss_common(cmd)
+    code = cmd_common(cmd)
     if code == 0:
         notice('OK')
 
 
 def gnss_stop(cmd):
-    code = gnss_common(cmd)
+    code = cmd_common(cmd)
     if code == 0:
         notice('OK')
-
-
-def gnss_status(cmd):
-    return gnss_common(cmd)
-
-
-def gnss_locate(cmd):
-    return gnss_common(cmd)
 
 
 if __name__ == "__main__":
@@ -344,6 +335,14 @@ if __name__ == "__main__":
         title="APN actions", dest="action")
 
     parser_apn_ls = apn_commands.add_parser("ls", help="List all APNs")
+    parser_apn_ls.add_argument(
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to listing all APNs (UART only)")
+    parser_apn_ls.add_argument(
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after listing all APNs (UART only)")
     parser_apn_set = apn_commands.add_parser("set", help="Set a new APN")
     parser_apn_set.add_argument(
         "-n", "--name", type=str, required=True, help="APN")
@@ -368,9 +367,19 @@ if __name__ == "__main__":
     network_commands = parser_network.add_subparsers(
         title="Phone Network actions", dest="action")
     parser_network_show = network_commands.add_parser(
-        "show", help="Show Phone network state and Signal strength")
+        "show", help="Show the Phone network state and Signal strength")
     parser_network_show.add_argument(
         "-o", "--opts", type=str, required=False, help="Show Options")
+    parser_network_show.add_argument(
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to showing the Phone network state and Signal strength"
+        " (UART only)")
+    parser_network_show.add_argument(
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after showing the Phone network state and Signal strength"
+        " (UART only)")
     parser_network_deregister = network_commands.add_parser(
         "deregister", help="Deregister from the current network")
     parser_network_register = network_commands.add_parser(
@@ -387,13 +396,29 @@ if __name__ == "__main__":
         title="SIM actions", dest="action")
     parser_sim_show = sim_commands.add_parser(
         "show", help="Show SIM state and SIM information")
+    parser_sim_show.add_argument(
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to showing the SIM state and SIM information (UART only)")
+    parser_sim_show.add_argument(
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after showing the SIM state and SIM information (UART only)")
 
     parser_modem = categories.add_parser(
         "modem", help="Manage LTE/3G module modem")
     modem_commands = parser_modem.add_subparsers(
         title="Modem actions", dest="action")
     parser_modem_show = modem_commands.add_parser(
-        "show", help="Show Module information")
+        "show", help="Show the Module information")
+    parser_modem_show.add_argument(
+        "-s", "--suspend", action="store_const", const=True, required=False,
+        help="Suspend the UART connection if already established "
+        "prior to showing the Module information (UART only)")
+    parser_modem_show.add_argument(
+        "-r", "--resume", action="store_const", const=True, required=False,
+        help="Resume the suspended UART connection "
+        "after showing the Module information (UART only)")
     parser_modem_reset = modem_commands.add_parser(
         "reset", help="Reset modem")
     parser_modem_reset.add_argument(
