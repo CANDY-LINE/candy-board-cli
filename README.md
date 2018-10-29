@@ -50,6 +50,9 @@ $ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
 # Revision history
+* 3.1.0
+    - Make `--suspend` and `--resume` options available for `apn ls`, `network show`, `sim show` and `modem show` commands
+
 * 3.0.0
     - Add new categories, `connection` and `gnss`
     - Add new actions in `service` category
