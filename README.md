@@ -50,6 +50,10 @@ $ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
 # Revision history
+* 3.2.0
+    - Add a new option (`-q`) to `gnss start` to enable QZSS, GLONASS and Beidou
+    - Add a new option (`-a`) to `gnss start` to enable QZSS, Galileo, GLONASS and Beidou
+
 * 3.1.0
     - Make `--suspend` and `--resume` options available for `apn ls`, `network show`, `sim show` and `modem show` commands
 
