@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2018 CANDY LINE INC.
+# Copyright (c) 2019 CANDY LINE INC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ except (IOError, ImportError):
     except IOError:  # For tox
         long_description = ""
 
-version = "3.1.0"
+version = "3.2.0"
 
 if sys.argv[-1] == 'publish':
     os.system('rm -fr dist/*')

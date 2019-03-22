@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 CANDY LINE INC.
+# Copyright (c) 2019 CANDY LINE INC.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -459,12 +459,18 @@ if __name__ == "__main__":
         "resume", help="Resume the suspended ppp connection")
 
     parser_gnss = categories.add_parser(
-        "gnss", help="Manage GNSS module (Use GPS)")
+        "gnss", help="Manage GNSS module (Use GPS by default)")
     gnss_commands = parser_gnss.add_subparsers(
         title="GNSS module actions", dest="action")
     parser_gnss_start = gnss_commands.add_parser(
         "start", help="Start GNSS positioning. "
         "NMEA sentences are emitted from the dedicated NMEA port(USB only).")
+    parser_gnss_start.add_argument(
+        "-q", "--qzss", action="store_const", const=True, required=False,
+        help="Enable QZSS as well as GPS, GLONASS and BeiDou")
+    parser_gnss_start.add_argument(
+        "-a", "--all", action="store_const", const=True, required=False,
+        help="Enable Galileo, QZSS, GPS, GLONASS and BeiDou")
     parser_gnss_start.add_argument(
         "-s", "--suspend", action="store_const", const=True, required=False,
         help="Suspend the UART connection if already established "
