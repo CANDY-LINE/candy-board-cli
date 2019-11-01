@@ -28,7 +28,7 @@ except (IOError, ImportError):
     except IOError:  # For tox
         long_description = ""
 
-version = "3.2.1"
+version = "3.2.2"
 
 if sys.argv[-1] == 'publish':
     os.system('rm -fr dist/*')
@@ -45,6 +45,7 @@ setup(
     download_url='https://github.com/CANDY-LINE/candy-board-cli/tarball/{0}'
         .format(version),
     description='CANDY Board Service CLI',
+    long_description_content_type='text/markdown',
     long_description=long_description,
     license='ASL 2.0',
     scripts=['bin/candy'],
