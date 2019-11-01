@@ -50,6 +50,9 @@ $ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
 # Revision history
+* 3.2.2
+   - Fix a pypi upload error
+
 * 3.2.1
     - Fix a KeyError
 
