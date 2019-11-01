@@ -298,7 +298,7 @@ def cmd_common(cmd):
     code = 0
     if usb_connected():
         return perform_remote_cmd(cmd)
-    elif cmd['suspend']:
+    elif 'suspend' in cmd and cmd['suspend']:
         code = connection_suspend(cmd, True)
         if code is None:
             return 1
@@ -307,7 +307,7 @@ def cmd_common(cmd):
         code = perform_remote_cmd(cmd)
     else:
         code = perform_remote_cmd(cmd)
-    if cmd['resume']:
+    if 'resume' in cmd and cmd['resume']:
         connection_resume(cmd, True)
     return code
 
