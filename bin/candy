@@ -69,6 +69,11 @@ if "SOCK_PATH" in os.environ:
 else:
     SOCK_PATH = "/var/run/candy-board-service.sock"
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 def err(msg):
     print(ERROR + msg + END)
