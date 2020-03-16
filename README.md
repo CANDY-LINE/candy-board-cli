@@ -49,7 +49,16 @@ $ cat files.txt | xargs rm -f
 $ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
+### Install the local package
+
+```
+$ pip install ./candy-board-cli.tgz --no-cache-dir
+```
+
 # Revision history
+* 3.3.0
+   - Add an option to disable color escape (Set `NO_COLOR=1` for disabling the message coloring)
+
 * 3.2.2
    - Fix a pypi upload error
 
