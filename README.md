@@ -49,6 +49,12 @@ $ cat files.txt | xargs rm -f
 $ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
 ```
 
+### Install the local package
+
+```
+$ pip install ./candy-board-cli.tgz --no-cache-dir
+```
+
 # Revision history
 * 3.2.2
    - Fix a pypi upload error
