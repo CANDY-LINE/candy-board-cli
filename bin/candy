@@ -69,6 +69,12 @@ if "SOCK_PATH" in os.environ:
 else:
     SOCK_PATH = "/var/run/candy-board-service.sock"
 
+if "NO_COLOR" in os.environ and os.environ["NO_COLOR"] == "1":
+    WARN = ""
+    NOTICE = ""
+    ERROR = ""
+    END = ""
+
 try:
     basestring
 except NameError:
