@@ -56,6 +56,9 @@ $ pip install ./candy-board-cli.tgz --no-cache-dir
 ```
 
 # Revision history
+* 4.0.0
+    - Add Python 3 (3.7+) support (still working on Python 2.7)
+
 * 3.3.0
    - Add an option to disable color escape (Set `NO_COLOR=1` for disabling the message coloring)
 
