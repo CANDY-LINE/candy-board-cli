@@ -337,7 +337,10 @@ def gnss_stop(cmd):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CANDY Board Service CLI")
-    categories = parser.add_subparsers(title="categories", dest="category")
+    if sys.version_info >= (3, 7):
+        categories = parser.add_subparsers(title="categories", dest="category", required=True)
+    else:
+        categories = parser.add_subparsers(title="categories", dest="category")
 
     version_commands = categories.add_parser("version", help="CLI Version")
 
