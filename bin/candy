@@ -82,14 +82,20 @@ except NameError:
 
 
 def err(msg):
+if isinstance(msg, bytes):
+    msg = msg.decode()
     print(ERROR + msg + END)
 
 
 def warn(msg):
+if isinstance(msg, bytes):
+    msg = msg.decode()
     print(WARN + msg + END)
 
 
 def notice(msg):
+    if isinstance(msg, bytes):
+        msg = msg.decode()
     print(NOTICE + msg + END)
 
 
