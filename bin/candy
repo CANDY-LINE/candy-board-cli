@@ -155,7 +155,7 @@ def perform_local_cmd(args):
         m = getattr(this_module,
                     "%s_%s" % (cmd['category'], cmd['action']))
         return m(cmd)
-    except socket.error, v:
+    except socket.error as v:
         raise v
     except AttributeError:
         return cmd_common(cmd)
@@ -231,7 +231,7 @@ def main(args):
             return 1
         try:
             return perform_local_cmd(args)
-        except socket.error, v:
+        except socket.error as v:
             errorcode = v[0]
             if errorcode == errno.ECONNREFUSED:
                 err("[ERROR] CANDY Board Service isn't running")
