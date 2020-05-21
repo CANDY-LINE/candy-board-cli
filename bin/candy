@@ -114,7 +114,7 @@ def perform_remote_cmd(args, sock=None):
         packed_header = packer.pack(size)
         sock.sendall(packed_header)
         packer = struct.Struct("%is" % size)
-        packed_json = packer.pack(cmd_json)
+        packed_json = packer.pack(cmd_json.encode('utf-8'))
         sock.sendall(packed_json)
 
         # response
@@ -138,10 +138,10 @@ def perform_remote_cmd(args, sock=None):
                     notice(msg)
                 else:
                     err(msg)
+        return code
 
     finally:
         sock.close()
-        return code
 
 
 def perform_local_cmd(args):
