@@ -52,7 +52,14 @@ $ tar czvf candy-board-cli.tgz --exclude "./.*" --exclude build --exclude dist *
 ### Install the local package
 
 ```
-$ pip install ./candy-board-cli.tgz --no-cache-dir
+# pip command
+$ pip install --no-cache-dir ./candy-board-cli.tgz 
+
+# python command
+$ python -m pip install --no-cache-dir ./candy-board-cli.tgz 
+
+# python3 command
+$ python3 -m pip install --no-cache-dir ./candy-board-cli.tgz 
 ```
 
 # Revision history
