@@ -82,14 +82,20 @@ except NameError:
 
 
 def err(msg):
+    if isinstance(msg, bytes):
+        msg = msg.decode()
     print(ERROR + msg + END)
 
 
 def warn(msg):
+    if isinstance(msg, bytes):
+        msg = msg.decode()
     print(WARN + msg + END)
 
 
 def notice(msg):
+    if isinstance(msg, bytes):
+        msg = msg.decode()
     print(NOTICE + msg + END)
 
 
@@ -114,7 +120,7 @@ def perform_remote_cmd(args, sock=None):
         packed_header = packer.pack(size)
         sock.sendall(packed_header)
         packer = struct.Struct("%is" % size)
-        packed_json = packer.pack(cmd_json)
+        packed_json = packer.pack(cmd_json.encode('utf-8'))
         sock.sendall(packed_json)
 
         # response
@@ -138,10 +144,10 @@ def perform_remote_cmd(args, sock=None):
                     notice(msg)
                 else:
                     err(msg)
+        return code
 
     finally:
         sock.close()
-        return code
 
 
 def perform_local_cmd(args):
@@ -155,7 +161,7 @@ def perform_local_cmd(args):
         m = getattr(this_module,
                     "%s_%s" % (cmd['category'], cmd['action']))
         return m(cmd)
-    except socket.error, v:
+    except socket.error as v:
         raise v
     except AttributeError:
         return cmd_common(cmd)
@@ -231,7 +237,7 @@ def main(args):
             return 1
         try:
             return perform_local_cmd(args)
-        except socket.error, v:
+        except socket.error as v:
             errorcode = v[0]
             if errorcode == errno.ECONNREFUSED:
                 err("[ERROR] CANDY Board Service isn't running")
@@ -240,12 +246,12 @@ def main(args):
             else:
                 err("[ERROR] I/O error, errno=%s" % errno.errorcode[errorcode])
             return errorcode
-    elif args.category in ("connection"):
+    elif args.category in ("connection",):
         if not os.path.exists(SOCK_PATH):
             err("[ERROR] CANDY Board Service isn't running")
             return 1
         return perform_local_cmd(args)
-    elif args.category in ("service"):
+    elif args.category in ("service",):
         return perform_local_cmd(args)
     else:
         raise ValueError("Unsupported category")
@@ -337,7 +343,10 @@ def gnss_stop(cmd):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CANDY Board Service CLI")
-    categories = parser.add_subparsers(title="categories", dest="category")
+    if sys.version_info >= (3, 7):
+        categories = parser.add_subparsers(title="categories", dest="category", required=True)
+    else:
+        categories = parser.add_subparsers(title="categories", dest="category")
 
     version_commands = categories.add_parser("version", help="CLI Version")
 

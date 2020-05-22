@@ -28,7 +28,7 @@ except (IOError, ImportError):
     except IOError:  # For tox
         long_description = ""
 
-version = "3.3.0"
+version = "4.0.0"
 
 if sys.argv[-1] == 'publish':
     os.system('rm -fr dist/*')
